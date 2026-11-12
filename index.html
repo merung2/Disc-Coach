@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC AI 소통 코치</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .disc-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .disc-card:hover {
+            transform: translateY(-2px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-sm">
+                    <i data-lucide="message-square-heart" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">DISC AI 소통 코치</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">성향별 맞춤형 대화 전략 & 실시간 Gemini AI 피드백</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="openQuizModal('my')" class="inline-flex items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                    <i data-lucide="user-check" class="w-4 h-4 mr-1.5 text-indigo-600"></i>
+                    내 유형 찾기
+                </button>
+                <button onclick="openQuizModal('partner')" class="inline-flex items-center px-3 py-1.5 text-xs sm:text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                    <i data-lucide="users" class="w-4 h-4 mr-1.5"></i>
+                    상대 유형 찾기
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Column: Input & Settings -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Step 1 & 2: Select Dual DISC Types -->
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+                    
+                    <!-- 1. My DISC Type -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                                <span class="w-5 h-5 rounded-full bg-slate-800 text-white text-[11px] font-bold flex items-center justify-center mr-2">1</span>
+                                나의 DISC 성향 (나)
+                            </h2>
+                            <span id="my-disc-badge" class="text-xs font-semibold text-rose-600">D 주도형 선택됨</span>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2" id="my-disc-selector">
+                            <button type="button" onclick="selectMyDisc('D')" id="my-btn-D" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-rose-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-rose-600">D</div>
+                                <div class="text-[11px] font-semibold text-slate-700">주도형</div>
+                            </button>
+                            <button type="button" onclick="selectMyDisc('I')" id="my-btn-I" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-amber-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-amber-500">I</div>
+                                <div class="text-[11px] font-semibold text-slate-700">사교형</div>
+                            </button>
+                            <button type="button" onclick="selectMyDisc('S')" id="my-btn-S" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-emerald-600">S</div>
+                                <div class="text-[11px] font-semibold text-slate-700">안정형</div>
+                            </button>
+                            <button type="button" onclick="selectMyDisc('C')" id="my-btn-C" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-blue-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-blue-600">C</div>
+                                <div class="text-[11px] font-semibold text-slate-700">신중형</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Partner DISC Type -->
+                    <div class="pt-3 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                                <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center mr-2">2</span>
+                                대화 상대방의 DISC 성향 (상대)
+                            </h2>
+                            <span id="partner-disc-badge" class="text-xs font-semibold text-emerald-600">S 안정형 선택됨</span>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-2" id="partner-disc-selector">
+                            <button type="button" onclick="selectPartnerDisc('D')" id="partner-btn-D" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-rose-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-rose-600">D</div>
+                                <div class="text-[11px] font-semibold text-slate-700">주도형</div>
+                            </button>
+                            <button type="button" onclick="selectPartnerDisc('I')" id="partner-btn-I" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-amber-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-amber-500">I</div>
+                                <div class="text-[11px] font-semibold text-slate-700">사교형</div>
+                            </button>
+                            <button type="button" onclick="selectPartnerDisc('S')" id="partner-btn-S" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-emerald-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-emerald-600">S</div>
+                                <div class="text-[11px] font-semibold text-slate-700">안정형</div>
+                            </button>
+                            <button type="button" onclick="selectPartnerDisc('C')" id="partner-btn-C" class="disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-blue-400 focus:outline-none">
+                                <div class="text-base font-extrabold text-blue-600">C</div>
+                                <div class="text-[11px] font-semibold text-slate-700">신중형</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Relationship Chemistry Banner -->
+                    <div id="chemistry-box" class="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-indigo-100 text-sm transition-all">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span id="chemistry-pair-label" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-600 text-white">D형(나) → S형(상대)</span>
+                            <span id="chemistry-keyword" class="text-xs font-semibold text-indigo-700">#속도조절 #부드러운어조</span>
+                        </div>
+                        <h3 id="chemistry-title" class="font-bold text-slate-900 text-sm mt-2">빠른 결론을 원하는 나와 신중하고 조화를 중시하는 상대</h3>
+                        <p id="chemistry-desc" class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            D형인 본인의 직설적이고 빠른 말투가 S형 상대에게는 압박이나 질책으로 느껴질 수 있습니다. 결론을 말하되 부드러운 배려의 말을 먼저 건네보세요.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Step 3: Situation & Draft -->
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center">
+                        <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center mr-2">3</span>
+                        대화 상황 및 초안 입력
+                    </h2>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">소통 목적 / 상황</label>
+                        <select id="situation-select" class="w-full rounded-xl border-slate-300 border px-3.5 py-2.5 text-sm text-slate-800 bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
+                            <option value="업무 지시 및 요청">📋 업무 지시 및 협조 요청</option>
+                            <option value="건설적인 피드백 및 지적">💡 건설적인 피드백 및 수정 요청</option>
+                            <option value="갈등 해결 및 의견 조율">🤝 갈등 해결 및 의견 조율</option>
+                            <option value="아이디어 제안 및 설득">🎯 아이디어 제안 및 설득</option>
+                            <option value="거절 및 일정 조율">⏳ 정중한 거절 및 일정 조율</option>
+                            <option value="칭찬 및 동기부여">👏 칭찬 및 동기부여</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">상대방과의 관계 (선택)</label>
+                        <input type="text" id="relationship-input" placeholder="예: 직속 팀장님, 협업하는 타부서 대리님, 후배 팀원" 
+                            class="w-full rounded-xl border-slate-300 border px-3.5 py-2 text-sm text-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label class="block text-xs font-semibold text-slate-700">전달하려는 말(초안) 또는 고민</label>
+                            <button type="button" onclick="fillExample()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline">예시 상황 채우기</button>
+                        </div>
+                        <textarea id="draft-input" rows="4" placeholder="상대방에게 보내려던 메시지 초안이나, 어떤 식으로 말을 꺼내야 할지 고민되는 상황을 자유롭게 적어주세요." 
+                            class="w-full rounded-xl border-slate-300 border p-3.5 text-sm text-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all resize-none"></textarea>
+                    </div>
+
+                    <button type="button" id="analyze-btn" onclick="analyzeCommunication()" 
+                        class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        <span>AI 소통 코칭 피드백 받기</span>
+                    </button>
+                </section>
+            </div>
+
+            <!-- Right Column: AI Coaching Feedback -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 min-h-[540px] flex flex-col overflow-hidden">
+                    
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="bot" class="w-5 h-5 text-indigo-600"></i>
+                            <h2 class="font-bold text-slate-800">Gemini AI 코칭 리포트</h2>
+                        </div>
+                        <span id="status-badge" class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-200 text-slate-600">대기 중</span>
+                    </div>
+
+                    <div id="result-container" class="p-6 flex-grow flex flex-col justify-center">
+                        
+                        <div id="empty-state" class="text-center max-w-md mx-auto py-12">
+                            <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="messages-square" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">나와 상대방의 성향 맞춤 코칭</h3>
+                            <p class="text-sm text-slate-500 leading-relaxed">
+                                왼쪽에서 <strong>나의 DISC 성향</strong>과 <strong>상대방의 DISC 성향</strong>을 각각 선택한 뒤 대화 상황을 입력해 보세요. 내 성향에서 비롯되는 맹점을 보완하고 상대방에게 가장 잘 통하는 대화 스크립트를 제안해 드립니다.
+                            </p>
+                        </div>
+
+                        <div id="loading-state" class="hidden text-center max-w-md mx-auto py-12">
+                            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-bounce">
+                                <i data-lucide="sparkles" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2 animate-pulse-subtle">상대방의 성향을 분석하고 있습니다...</h3>
+                            <p class="text-sm text-slate-500">
+                                선택하신 DISC 유형의 심리적 특성과 소통 선호도를 반영하여 최적의 스크립트를 작성 중입니다.
+                            </p>
+                        </div>
+
+                        <div id="error-state" class="hidden text-center max-w-md mx-auto py-12">
+                            <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-2">분석 중 오류가 발생했습니다</h3>
+                            <p id="error-message" class="text-sm text-slate-500 mb-4">잠시 후 다시 시도해 주세요.</p>
+                            <button onclick="analyzeCommunication()" class="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700">다시 시도</button>
+                        </div>
+
+                        <div id="feedback-content" class="hidden space-y-5">
+                            <div class="p-4 rounded-xl bg-purple-50/70 border border-purple-100">
+                                <div class="flex items-center space-x-2 text-purple-800 font-bold text-sm mb-1.5">
+                                    <i data-lucide="git-compare" class="w-4 h-4"></i>
+                                    <span id="fb-pair-header">두 유형 간 소통 역학 & 나의 주의점</span>
+                                </div>
+                                <p id="fb-pair-dynamics" class="text-sm text-slate-700 leading-relaxed"></p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100">
+                                <div class="flex items-center space-x-2 text-indigo-800 font-bold text-sm mb-1.5">
+                                    <i data-lucide="compass" class="w-4 h-4"></i>
+                                    <span>상황 및 초안 핵심 진단</span>
+                                </div>
+                                <p id="fb-diagnosis" class="text-sm text-slate-700 leading-relaxed"></p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                                    <div class="flex items-center space-x-1.5 text-emerald-800 font-bold text-sm mb-2">
+                                        <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                                        <span>잘한 점 / 유지할 포인트</span>
+                                    </div>
+                                    <ul id="fb-good" class="text-xs text-slate-700 space-y-1.5 list-disc list-inside leading-relaxed"></ul>
+                                </div>
+
+                                <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-100">
+                                    <div class="flex items-center space-x-1.5 text-amber-800 font-bold text-sm mb-2">
+                                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                                        <span>보완할 점 / 오해 소지</span>
+                                    </div>
+                                    <ul id="fb-improve" class="text-xs text-slate-700 space-y-1.5 list-disc list-inside leading-relaxed"></ul>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                                    <i data-lucide="message-square-quote" class="w-4 h-4 mr-1.5 text-indigo-600"></i>
+                                    추천 대화 스크립트 (바로 복사해서 사용하세요)
+                                </h3>
+
+                                <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm relative group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-100 text-indigo-700" id="script1-label">추천 버전 1 (핵심 전달형)</span>
+                                        <button onclick="copyScript('script1-text', this)" class="text-xs text-slate-500 hover:text-indigo-600 flex items-center space-x-1 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1 rounded-md transition-colors">
+                                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                            <span>복사</span>
+                                        </button>
+                                    </div>
+                                    <p id="script1-text" class="text-sm text-slate-800 whitespace-pre-line leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100"></p>
+                                </div>
+
+                                <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm relative group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-700" id="script2-label">추천 버전 2 (부드러운 조율형)</span>
+                                        <button onclick="copyScript('script2-text', this)" class="text-xs text-slate-500 hover:text-indigo-600 flex items-center space-x-1 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1 rounded-md transition-colors">
+                                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                            <span>복사</span>
+                                        </button>
+                                    </div>
+                                    <p id="script2-text" class="text-sm text-slate-800 whitespace-pre-line leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100"></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-2.5 p-3.5 rounded-xl bg-slate-800 text-white text-xs">
+                                <i data-lucide="lightbulb" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+                                <div>
+                                    <span class="font-bold text-amber-300">코치의 한 줄 팁: </span>
+                                    <span id="fb-tip" class="text-slate-200 leading-relaxed"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2 z-50">
+        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-msg">클립보드에 복사되었습니다!</span>
+    </div>
+
+    <!-- Quick DISC Finder Modal -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 id="quiz-modal-title" class="font-bold text-lg text-slate-900">DISC 유형 간편 진단</h3>
+                <button onclick="closeQuizModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="py-4 space-y-4">
+                <p id="quiz-modal-desc" class="text-sm text-slate-600">평소 모습과 가장 가까운 설명을 선택해 주세요.</p>
+                
+                <div class="space-y-2.5">
+                    <button onclick="applyQuizResult('D')" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-rose-500 hover:bg-rose-50/50 transition-all">
+                        <div class="font-bold text-sm text-rose-700 mb-0.5">1. 말과 행동이 빠르고 결론부터 듣길 원한다</div>
+                        <p class="text-xs text-slate-500">자기주장이 강하며 목표 달성과 효율성을 최우선으로 생각합니다.</p>
+                    </button>
+
+                    <button onclick="applyQuizResult('I')" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 transition-all">
+                        <div class="font-bold text-sm text-amber-700 mb-0.5">2. 표정이 풍부하고 대화와 아이디어 공유를 즐긴다</div>
+                        <p class="text-xs text-slate-500">분위기를 주도하며 사람들과 어울리고 인정받는 것을 좋아합니다.</p>
+                    </button>
+
+                    <button onclick="applyQuizResult('S')" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all">
+                        <div class="font-bold text-sm text-emerald-700 mb-0.5">3. 차분하고 경청을 잘하며 갈등을 피하려 한다</div>
+                        <p class="text-xs text-slate-500">갑작스러운 변화보다 안정적인 환경과 팀의 화합을 중요시합니다.</p>
+                    </button>
+
+                    <button onclick="applyQuizResult('C')" class="w-full text-left p-3.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-all">
+                        <div class="font-bold text-sm text-blue-700 mb-0.5">4. 근거와 데이터를 중시하며 꼼꼼하게 질문한다</div>
+                        <p class="text-xs text-slate-500">감정적인 표현보다 논리적이고 정확한 사실 관계를 확인하려 합니다.</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const discData = {
+            D: {
+                shortName: 'D 주도형',
+                name: 'D형 (주도형)',
+                color: 'rose',
+                textClass: 'text-rose-600',
+                borderClass: 'border-rose-500 bg-rose-50/60',
+                trait: '결과 중심 · 직설적 · 빠른 결정',
+                desc: '핵심 결론부터 간결하게 말하며 목표 달성과 효율성을 최우선으로 여기는 성향'
+            },
+            I: {
+                shortName: 'I 사교형',
+                name: 'I형 (사교형)',
+                color: 'amber',
+                textClass: 'text-amber-600',
+                borderClass: 'border-amber-500 bg-amber-50/60',
+                trait: '관계 중심 · 열정적 · 낙관적',
+                desc: '밝은 분위기, 공감, 인정, 아이디어 공유와 사람들과의 소통을 즐기는 성향'
+            },
+            S: {
+                shortName: 'S 안정형',
+                name: 'S형 (안정형)',
+                color: 'emerald',
+                textClass: 'text-emerald-600',
+                borderClass: 'border-emerald-500 bg-emerald-50/60',
+                trait: '조화 중심 · 배려심 · 신중함',
+                desc: '갑작스러운 변화보다 안정감, 팀의 화합, 진심 어린 배려와 경청을 중시하는 성향'
+            },
+            C: {
+                shortName: 'C 신중형',
+                name: 'C형 (신중형)',
+                color: 'blue',
+                textClass: 'text-blue-600',
+                borderClass: 'border-blue-500 bg-blue-50/60',
+                trait: '논리 중심 · 분석적 · 정확성',
+                desc: '객관적 데이터, 논리적 근거, 체계적인 기준과 정확한 사실 관계를 중시하는 성향'
+            }
+        };
+
+        const chemistryMatrix = {
+            'D-D': { title: '불꽃 튀는 추진력의 두 리더', tags: '#핵심만간결히 #주도권존중', desc: '둘 다 결론이 빠르고 직설적이라 자칫 기싸움이 될 수 있습니다. 감정적인 맞대응을 피하고 공동의 목표와 선택지를 제시하세요.' },
+            'D-I': { title: '목표 지향적인 나와 아이디어를 즐기는 상대', tags: '#긍정적리액션 #큰그림공유', desc: 'D형의 단도직입적인 지시가 I형에게는 차갑게 느껴질 수 있습니다. 상대의 열정을 먼저 인정해 준 뒤 핵심 목표를 짚어주세요.' },
+            'D-S': { title: '빠른 결론을 원하는 나와 신중하고 조화를 중시하는 상대', tags: '#속도조절 #부드러운어조', desc: 'D형인 본인의 직설적이고 빠른 말투가 S형 상대에게는 압박이나 질책으로 느껴질 수 있습니다. 결론을 말하되 부드러운 배려의 말을 먼저 건네보세요.' },
+            'D-C': { title: '속도를 중시하는 나와 정확성을 따지는 상대', tags: '#근거제시 #질문시간보장', desc: 'D형이 "일단 해보자"고 밀어붙이면 C형은 논리적 허점 때문에 불안해합니다. 추진 배경과 핵심 근거를 간단히라도 함께 제시하세요.' },
+            'I-D': { title: '관계와 스토리를 즐기는 나와 핵심만 원하는 상대', tags: '#결론부터 #군더더기생략', desc: 'I형 특유의 긴 서론과 감정 표현은 D형을 조급하게 만듭니다. 반가운 인사는 짧게 하고 용건과 기대 결과를 첫 문장에 배치하세요.' },
+            'I-I': { title: '에너지 넘치는 두 아이디어 뱅크', tags: '#즐거운소통 #일정과마감명확히', desc: '대화가 즐겁고 아이디어를 쏟아내지만 정작 구체적인 실행 계획이 빠지기 쉽습니다. 긍정적 에너지를 나누되 누가 언제까지 무엇을 할지 정리하세요.' },
+            'I-S': { title: '활발하게 주도하는 나와 차분히 경청하는 상대', tags: '#경청과기다림 #진심어린공감', desc: 'I형이 혼자 말을 많이 하면 S형은 속마음을 꺼내지 못하고 따라가기만 할 수 있습니다. 상대가 편하게 의견을 말할 수 있도록 천천히 질문해 주세요.' },
+            'I-C': { title: '직관적이고 낙관적인 나와 분석적이고 꼼꼼한 상대', tags: '#감정표현절제 #객관적팩트', desc: 'I형의 "느낌이 좋아요", "다 잘 될 거예요"라는 표현은 C형에게 신뢰를 주기 어렵습니다. 열정은 살짝 낮추고 구체적인 수치와 근거를 준비하세요.' },
+            'S-D': { title: '배려하며 돌려서 말하는 나와 직설적인 상대', tags: '#요점명확히 #자신감있는어조', desc: 'S형이 상대를 배려해 완곡하게 말하면 D형은 핵심이 무엇인지 답답해할 수 있습니다. 미안하다는 표현을 줄이고 원하는 바를 분명하게 전달하세요.' },
+            'S-I': { title: '차분하고 신중한 나와 밝고 즉흥적인 상대', tags: '#밝은호응 #변화수용', desc: 'S형은 I형의 갑작스러운 제안에 부담을 느낄 수 있고, I형은 S형의 조용한 반응에 실망할 수 있습니다. 긍정적인 호응을 먼저 보여준 뒤 일정을 조율하세요.' },
+            'S-S': { title: '서로를 깊이 배려하는 평화로운 조합', tags: '#솔직한의견표현 #명확한결정', desc: '서로 갈등을 피하려다 보니 진짜 원하는 바를 말하지 못하고 결론이 늦어질 수 있습니다. 배려를 유지하되 각자의 입장과 기준을 솔직히 나누세요.' },
+            'S-C': { title: '사람의 마음을 살피는 나와 논리와 원칙을 따지는 상대', tags: '#차분한논리 #서면정리', desc: '서로 차분해서 큰 충돌은 없지만, S형은 C형의 건조한 말투에 상처받을 수 있습니다. 감정적 서운함보다는 사실과 기준 중심으로 차분히 대화하세요.' },
+            'C-D': { title: '디테일을 꼼꼼히 따지는 나와 큰 그림만 보는 상대', tags: '#핵심요약 #해결책중심', desc: 'C형이 모든 세부 사항과 리스크를 나열하면 D형은 지루해하거나 부정적으로 받아들일 수 있습니다. 결론과 핵심 대안 2~3가지만 압축해서 보고하세요.' },
+            'C-I': { title: '신중하게 검증하는 나와 자유롭게 상상하는 상대', tags: '#비판최소화 #긍정적피드백', desc: 'C형이 I형의 아이디어에 현실적 문제점부터 지적하면 I형은 크게 의기소침해집니다. 좋은 취지를 먼저 칭찬한 뒤 보완할 점을 부드럽게 제안하세요.' },
+            'C-S': { title: '원칙과 기준이 엄격한 나와 부드러운 관계를 원하는 상대', tags: '#따뜻한인사 #충분한안내', desc: 'C형의 정확하지만 딱딱한 피드백이 S형에게는 차갑게 느껴질 수 있습니다. 안부 인사와 노고에 대한 감사를 먼저 전한 뒤 수정 사항을 안내하세요.' },
+            'C-C': { title: '완벽과 논리를 추구하는 두 전문가', tags: '#기준합의 #과도한완벽주의주의', desc: '논리적이고 체계적이지만 사소한 디테일이나 기준 차이로 끝없는 논쟁에 빠질 수 있습니다. 전체 일정과 우선순위를 먼저 합의하고 대화하세요.' }
+        };
+
+        let myDisc = 'D';
+        let partnerDisc = 'S';
+        let quizTarget = 'partner';
+
+        function selectMyDisc(type) {
+            myDisc = type;
+            ['D', 'I', 'S', 'C'].forEach(t => {
+                const btn = document.getElementById(`my-btn-${t}`);
+                btn.className = `disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-${discData[t].color}-400 focus:outline-none`;
+            });
+            const selectedBtn = document.getElementById(`my-btn-${type}`);
+            selectedBtn.className = `disc-card text-center p-2.5 rounded-xl border-2 ${discData[type].borderClass} focus:outline-none shadow-sm`;
+            
+            const badge = document.getElementById('my-disc-badge');
+            badge.textContent = `${discData[type].shortName} 선택됨`;
+            badge.className = `text-xs font-semibold ${discData[type].textClass}`;
+
+            updateChemistryBanner();
+        }
+
+        function selectPartnerDisc(type) {
+            partnerDisc = type;
+            ['D', 'I', 'S', 'C'].forEach(t => {
+                const btn = document.getElementById(`partner-btn-${t}`);
+                btn.className = `disc-card text-center p-2.5 rounded-xl border-2 border-slate-200 hover:border-${discData[t].color}-400 focus:outline-none`;
+            });
+            const selectedBtn = document.getElementById(`partner-btn-${type}`);
+            selectedBtn.className = `disc-card text-center p-2.5 rounded-xl border-2 ${discData[type].borderClass} focus:outline-none shadow-sm`;
+
+            const badge = document.getElementById('partner-disc-badge');
+            badge.textContent = `${discData[type].shortName} 선택됨`;
+            badge.className = `text-xs font-semibold ${discData[type].textClass}`;
+
+            updateChemistryBanner();
+        }
+
+        function updateChemistryBanner() {
+            const key = `${myDisc}-${partnerDisc}`;
+            const chem = chemistryMatrix[key];
+
+            document.getElementById('chemistry-pair-label').textContent = `${myDisc}형(나) → ${partnerDisc}형(상대)`;
+            document.getElementById('chemistry-keyword').textContent = chem.tags;
+            document.getElementById('chemistry-title').textContent = chem.title;
+            document.getElementById('chemistry-desc').textContent = chem.desc;
+        }
+
+        selectMyDisc('D');
+        selectPartnerDisc('S');
+
+        function fillExample() {
+            const pairExamples = {
+                'D-S': {
+                    situation: '업무 지시 및 요청',
+                    relation: '협업하는 운영팀 후배',
+                    draft: '이번 주 금요일까지 고객 응대 매뉴얼 수정본 다 완료해서 공유해 주세요. 지난번 버전은 너무 길어서 보기 힘드니 핵심만 1페이지로 줄여주세요.'
+                },
+                'S-D': {
+                    situation: '거절 및 일정 조율',
+                    relation: '직속 본부장님',
+                    draft: '본부장님, 죄송하지만 말씀하신 기획안은 내일까지 드리기가 조금 어려울 것 같아서요... 다른 업무도 겹쳐있고 해서 혹시 다음 주 월요일까지 시간을 조금 더 주실 수 있을까요?'
+                },
+                'I-C': {
+                    situation: '아이디어 제안 및 설득',
+                    relation: '개발팀 파트장님',
+                    draft: '파트장님! 이번에 AI 챗봇 기능 도입하면 진짜 대박일 것 같아요. 요즘 트렌드이기도 하고 사용자들이 엄청 좋아할 것 같아서요! 한번 긍정적으로 검토해 주세요!'
+                },
+                'C-I': {
+                    situation: '건설적인 피드백 및 지적',
+                    relation: '마케팅팀 팀원',
+                    draft: '작성하신 이벤트 기획안 검토했습니다. 전체적으로 목표 수치가 불명확하고 예산 산출 근거가 누락되어 있습니다. 3페이지 오탈자도 수정해서 내일까지 다시 제출바랍니다.'
+                }
+            };
+
+            const defaultByPartner = {
+                D: {
+                    situation: '거절 및 일정 조율',
+                    relation: '직속 팀장님',
+                    draft: '팀장님, 요청하신 자료는 지금 데이터 취합이 덜 되어서 내일까지는 힘들 것 같습니다. 다음 주 월요일 오전에 드려도 될까요?'
+                },
+                I: {
+                    situation: '건설적인 피드백 및 지적',
+                    relation: '협업하는 동료',
+                    draft: '이번 시안 디자인은 좋은데 핵심 메시지가 잘 안 보이고 오타가 좀 있네요. 내일 오전까지 수정 부탁드립니다.'
+                },
+                S: {
+                    situation: '업무 지시 및 요청',
+                    relation: '타부서 담당자님',
+                    draft: '다음 주부터 프로세스가 변경되니 오늘 보내드리는 가이드 숙지하시고 바로 적용해 주시기 바랍니다.'
+                },
+                C: {
+                    situation: '아이디어 제안 및 설득',
+                    relation: '기획팀 리더님',
+                    draft: '새로운 협업 툴을 도입하면 업무 속도가 훨씬 빨라질 것 같습니다. 한번 도입해 보는 게 어떨까요?'
+                }
+            };
+
+            const ex = pairExamples[`${myDisc}-${partnerDisc}`] || defaultByPartner[partnerDisc];
+            document.getElementById('situation-select').value = ex.situation;
+            document.getElementById('relationship-input').value = ex.relation;
+            document.getElementById('draft-input').value = ex.draft;
+            showToast(`${myDisc}형(나) → ${partnerDisc}형(상대) 맞춤 예시가 입력되었습니다.`);
+        }
+
+        function openQuizModal(target) {
+            quizTarget = target;
+            const titleEl = document.getElementById('quiz-modal-title');
+            const descEl = document.getElementById('quiz-modal-desc');
+            
+            if (target === 'my') {
+                titleEl.textContent = '나의 DISC 유형 간편 진단';
+                descEl.textContent = '평소 본인의 업무 스타일이나 대화 습관과 가장 가까운 설명을 선택해 주세요.';
+            } else {
+                titleEl.textContent = '상대방 DISC 유형 간편 진단';
+                descEl.textContent = '대화하려는 상대방의 평소 모습과 가장 가까운 설명을 선택해 주세요.';
+            }
+
+            const modal = document.getElementById('quiz-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeQuizModal() {
+            const modal = document.getElementById('quiz-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function applyQuizResult(type) {
+            if (quizTarget === 'my') {
+                selectMyDisc(type);
+                showToast(`나의 성향으로 ${discData[type].shortName}이(가) 선택되었습니다.`);
+            } else {
+                selectPartnerDisc(type);
+                showToast(`상대방 성향으로 ${discData[type].shortName}이(가) 선택되었습니다.`);
+            }
+            closeQuizModal();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function copyScript(elementId, btnElement) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('추천 스크립트가 복사되었습니다!');
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i><span class="text-emerald-600 font-semibold">복사됨</span>`;
+                lucide.createIcons();
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHtml;
+                    lucide.createIcons();
+                }, 2000);
+            } catch (err) {
+                showToast('복사에 실패했습니다. 직접 드래그하여 복사해 주세요.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Vercel Serverless Function (/api/coach) 호출
+        async function callCoachApi(prompt, systemInstruction, maxRetries = 3) {
+            let delay = 1000;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch('/api/coach', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt, systemInstruction })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    if (attempt === maxRetries) {
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function analyzeCommunication() {
+            const draft = document.getElementById('draft-input').value.trim();
+            const situation = document.getElementById('situation-select').value;
+            const relationship = document.getElementById('relationship-input').value.trim() || '업무상 상대방';
+            const myInfo = discData[myDisc];
+            const partnerInfo = discData[partnerDisc];
+
+            if (!draft) {
+                showToast('전달하려는 대화 초안이나 고민을 입력해 주세요!');
+                document.getElementById('draft-input').focus();
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyze-btn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('feedback-content').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('loading-state').classList.remove('hidden');
+
+            const statusBadge = document.getElementById('status-badge');
+            statusBadge.textContent = 'AI 분석 중...';
+            statusBadge.className = 'text-xs font-medium px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 animate-pulse';
+
+            const systemPrompt = `당신은 대한민국 최고의 비즈니스 커뮤니케이션 및 DISC 행동유형 전문가입니다. 
+화자(나)의 DISC 성향(${myInfo.name})과 청자(상대방)의 DISC 성향(${partnerInfo.name}) 사이의 심리적 역학 관계를 깊이 있게 이해하고 있습니다.
+화자가 자신의 성향적 습관(예: D형의 지나친 직설화법, I형의 긴 서론, S형의 과도한 완곡어법, C형의 건조한 지적 등) 때문에 상대방에게 오해를 사지 않도록 조율해 주고, 청자의 성향에 가장 효과적으로 닿을 수 있는 실질적이고 다정한 코칭 피드백을 제공하세요.
+모든 답변은 자연스럽고 정중한 한국어 비즈니스 톤으로 작성하며, 추천 스크립트는 사용자가 복사해서 메신저나 이메일, 구두로 바로 사용할 수 있을 만큼 완성도 높게 작성해야 합니다.`;
+
+            const userPrompt = `
+[화자(나)의 DISC 유형]: ${myInfo.name} (${myInfo.desc})
+[청자(상대방)의 DISC 유형]: ${partnerInfo.name} (${partnerInfo.desc})
+[소통 상황]: ${situation}
+[상대방과의 관계]: ${relationship}
+[사용자의 대화 초안 또는 고민]:
+"${draft}"
+
+위 내용을 바탕으로 '${myInfo.name}인 나'가 '${partnerInfo.name}인 상대방'에게 가장 효과적으로 의도를 전달할 수 있도록 두 유형 간 주의점을 짚어주고 맞춤형 대화 스크립트를 제안해 주세요.`;
+
+            try {
+                const feedback = await callCoachApi(userPrompt, systemPrompt);
+
+                document.getElementById('fb-pair-header').textContent = `${myDisc}형(나) → ${partnerDisc}형(상대) 소통 역학 & 주의점`;
+                document.getElementById('fb-pair-dynamics').textContent = feedback.pairDynamics;
+                document.getElementById('fb-diagnosis').textContent = feedback.diagnosis;
+                
+                document.getElementById('fb-good').innerHTML = feedback.goodPoints
+                    .map(item => `<li>${item}</li>`).join('');
+                
+                document.getElementById('fb-improve').innerHTML = feedback.improvePoints
+                    .map(item => `<li>${item}</li>`).join('');
+
+                document.getElementById('script1-label').textContent = feedback.script1Title;
+                document.getElementById('script1-text').textContent = feedback.script1Text;
+
+                document.getElementById('script2-label').textContent = feedback.script2Title;
+                document.getElementById('script2-text').textContent = feedback.script2Text;
+
+                document.getElementById('fb-tip').textContent = feedback.actionTip;
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('feedback-content').classList.remove('hidden');
+
+                statusBadge.textContent = '분석 완료';
+                statusBadge.className = 'text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700';
+
+            } catch (error) {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('error-state').classList.remove('hidden');
+                document.getElementById('error-message').textContent = 'AI 코치와 연결하는 중 문제가 발생했습니다. API 키 설정을 확인해 주세요.';
+
+                statusBadge.textContent = '오류 발생';
+                statusBadge.className = 'text-xs font-medium px-2.5 py-1 rounded-full bg-rose-100 text-rose-700';
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+    </script>
+</body>
+</html>
